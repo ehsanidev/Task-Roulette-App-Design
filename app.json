@@ -1,0 +1,23 @@
+{
+  "expo": {
+    "name": "Task Roulette",
+    "slug": "task-roulette-app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#0D0D1A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0D0D1A"
+      }
+    }
+  }
+}
