@@ -1,0 +1,17 @@
+export const palette = {
+  bgDark: '#0D0D1A',
+  bgLight: '#F0F2F8',
+  cardDark: '#14203A',
+  cardLight: '#FFFFFF',
+  textDark: '#EAEAEA',
+  textLight: '#1A1A2E',
+  subDark: '#8888AA',
+  subLight: '#636E72',
+  borderDark: 'rgba(255,255,255,0.08)',
+  borderLight: 'rgba(0,0,0,0.08)',
+  accent: '#5F27CD',
+  accentSoft: '#7C3AED',
+  success: '#10AC84',
+  warning: '#FF9F43',
+  muted: '#636E72',
+}
