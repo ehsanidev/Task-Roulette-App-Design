@@ -1,101 +1,46 @@
-import React, { useMemo, useRef, useState } from 'react'
+import React from 'react'
 import { StatusBar, View } from 'react-native'
-import { AddTaskModal } from './components/AddTaskModal'
-import { DashboardScreen } from './screens/DashboardScreen'
-import { LoginScreen } from './screens/LoginScreen'
-import { ReportScreen } from './screens/ReportScreen'
-import { StatsScreen } from './screens/StatsScreen'
-import { SAMPLE_TASKS } from './data/tasks'
-import { NewTaskDraft, ReportDraft, Screen, Task } from './types/task'
+import { AddTaskModal } from './src/components/AddTaskModal'
+import { DashboardScreen } from './src/screens/DashboardScreen'
+import { LoginScreen } from './src/screens/LoginScreen'
+import { ReportScreen } from './src/screens/ReportScreen'
+import { StatsScreen } from './src/screens/StatsScreen'
+import { useTaskStore } from './src/store/useTaskStore'
 
 export default function App() {
-  const [dark, setDark] = useState(true)
-  const [screen, setScreen] = useState<Screen>('login')
-  const [tasks, setTasks] = useState<Task[]>(SAMPLE_TASKS)
-  const [rotation, setRotation] = useState(0)
-  const [spinning, setSpinning] = useState(false)
-  const [locked, setLocked] = useState(false)
-  const [selected, setSelected] = useState<Task | null>(null)
-  const [spinCount, setSpinCount] = useState(0)
-  const [showAdd, setShowAdd] = useState(false)
-  const [newTask, setNewTask] = useState<NewTaskDraft>({ title: '', description: '', priority: 'medium' })
-  const [reportForm, setReportForm] = useState<ReportDraft>({ note: '', difficulty: 3, at: new Date().toISOString().slice(0, 16) })
-  const [userName, setUserName] = useState('')
-  const [userEmail, setUserEmail] = useState('')
-  const rotRef = useRef(0)
+  const dark = useTaskStore((state) => state.dark)
+  const screen = useTaskStore((state) => state.screen)
+  const tasks = useTaskStore((state) => state.tasks)
+  const active = useTaskStore((state) => state.tasks.filter((task) => !task.completed && !task.skipped))
+  const done = useTaskStore((state) => state.tasks.filter((task) => task.completed))
+  const rotation = useTaskStore((state) => state.rotation)
+  const spinning = useTaskStore((state) => state.spinning)
+  const locked = useTaskStore((state) => state.locked)
+  const selected = useTaskStore((state) => state.selected)
+  const spinCount = useTaskStore((state) => state.spinCount)
+  const showAdd = useTaskStore((state) => state.showAdd)
+  const newTask = useTaskStore((state) => state.newTask)
+  const reportForm = useTaskStore((state) => state.reportForm)
+  const userName = useTaskStore((state) => state.userName)
+  const userEmail = useTaskStore((state) => state.userEmail)
 
-  const active = useMemo(() => tasks.filter((t) => !t.completed && !t.skipped), [tasks])
-  const done = useMemo(() => tasks.filter((t) => t.completed), [tasks])
-
-  const spin = () => {
-    if (spinning || locked || active.length === 0) return
-
-    const n = active.length
-    const idx = Math.floor(Math.random() * n)
-    const seg = 360 / n
-    const mid = (idx + 0.5) * seg
-    const cur = ((rotRef.current % 360) + 360) % 360
-    const tgt = (360 - (mid % 360) + 360) % 360
-    const delta = (tgt - cur + 360) % 360
-    const nr = rotRef.current + 1800 + delta
-
-    rotRef.current = nr
-    setRotation(nr)
-    setSpinning(true)
-
-    setTimeout(() => {
-      setSpinning(false)
-      setLocked(true)
-      setSelected(active[idx])
-      setSpinCount((c) => c + 1)
-    }, 4100)
-  }
-
-  const submitReport = () => {
-    if (!selected) return
-
-    setTasks((prev) => prev.map((task) => (task.id === selected.id ? { ...task, completed: true, reportNote: reportForm.note, difficulty: reportForm.difficulty, completedAt: reportForm.at } : task)))
-    setLocked(false)
-    setSelected(null)
-    setReportForm({ note: '', difficulty: 3, at: new Date().toISOString().slice(0, 16) })
-    setScreen('dashboard')
-  }
-
-  const skipTask = () => {
-    if (!selected) return
-
-    setTasks((prev) => prev.map((task) => (task.id === selected.id ? { ...task, skipped: true } : task)))
-    setLocked(false)
-    setSelected(null)
-    setScreen('dashboard')
-  }
-
-  const addTask = () => {
-    if (!newTask.title.trim()) return
-
-    const task: Task = {
-      id: Date.now().toString(),
-      title: newTask.title,
-      description: newTask.description,
-      priority: newTask.priority,
-      completed: false,
-      skipped: false,
-      color: ['#FF6B6B', '#FF9F43', '#FECA57', '#48DBFB', '#0ABDE3', '#10AC84', '#5F27CD', '#01CBC6', '#E84393'][active.length % 9],
-    }
-
-    setTasks((prev) => [...prev, task])
-    setNewTask({ title: '', description: '', priority: 'medium' })
-    setShowAdd(false)
-  }
-
-  const deleteTask = (taskId: string) => {
-    setTasks((prev) => prev.filter((task) => task.id !== taskId))
-  }
+  const setDark = useTaskStore((state) => state.setDark)
+  const setScreen = useTaskStore((state) => state.setScreen)
+  const setUserName = useTaskStore((state) => state.setUserName)
+  const setUserEmail = useTaskStore((state) => state.setUserEmail)
+  const setShowAdd = useTaskStore((state) => state.setShowAdd)
+  const setNewTask = useTaskStore((state) => state.setNewTask)
+  const updateReportField = useTaskStore((state) => state.updateReportField)
+  const startSpin = useTaskStore((state) => state.startSpin)
+  const submitReport = useTaskStore((state) => state.submitReport)
+  const skipSelectedTask = useTaskStore((state) => state.skipSelectedTask)
+  const addTask = useTaskStore((state) => state.addTask)
+  const deleteTask = useTaskStore((state) => state.deleteTask)
 
   if (screen === 'login') {
     return (
       <>
-        <StatusBar barStyle="light-content" />
+        <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
         <LoginScreen
           dark={dark}
           userName={userName}
@@ -103,7 +48,7 @@ export default function App() {
           onNameChange={setUserName}
           onEmailChange={setUserEmail}
           onContinue={() => setScreen('dashboard')}
-          onToggleTheme={() => setDark((d) => !d)}
+          onToggleTheme={() => setDark(!dark)}
         />
       </>
     )
@@ -115,14 +60,12 @@ export default function App() {
         selected={selected}
         dark={dark}
         reportForm={reportForm}
-        onNoteChange={(note) => setReportForm((prev) => ({ ...prev, note }))}
-        onDifficultyChange={(difficulty) => setReportForm((prev) => ({ ...prev, difficulty }))}
-        onDateChange={(at) => setReportForm((prev) => ({ ...prev, at }))}
+        onNoteChange={(note) => updateReportField('note', note)}
+        onDifficultyChange={(difficulty) => updateReportField('difficulty', difficulty)}
+        onDateChange={(at) => updateReportField('at', at)}
         onSubmit={submitReport}
-        onSkip={skipTask}
+        onSkip={skipSelectedTask}
         onBack={() => {
-          setLocked(false)
-          setSelected(null)
           setScreen('dashboard')
         }}
       />
@@ -144,6 +87,7 @@ export default function App() {
 
   return (
     <View style={{ flex: 1 }}>
+      <StatusBar barStyle={dark ? 'light-content' : 'dark-content'} />
       <DashboardScreen
         dark={dark}
         userName={userName}
@@ -154,9 +98,9 @@ export default function App() {
         spinning={spinning}
         locked={locked}
         selected={selected}
-        onToggleTheme={() => setDark((d) => !d)}
+        onToggleTheme={() => setDark(!dark)}
         onOpenStats={() => setScreen('stats')}
-        onSpin={spin}
+        onSpin={startSpin}
         onOpenReport={() => setScreen('report')}
         onDeleteTask={deleteTask}
         onAddTask={() => setShowAdd(true)}

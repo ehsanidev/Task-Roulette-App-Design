@@ -7,6 +7,7 @@ A polished React Native + Expo app inspired by the provided Task Roulette design
 - Expo
 - TypeScript
 - React Native SVG
+- Zustand for state management
 - NativeWind / Tailwind-style utility setup
 
 ## Run locally
@@ -20,10 +21,11 @@ A polished React Native + Expo app inspired by the provided Task Roulette design
 - `src/components` — reusable UI pieces
 - `src/screens` — screen-level views
 - `src/data` — sample/static datasets
+- `src/store` — Zustand app store and state logic
 - `src/constants` — color and design constants
 - `src/theme` — theme config
 - `src/types` — TypeScript domain types
 - `src/utils` — geometry and helper utilities
 
 ## Notes
-This branch keeps the app logic and presentation separated so it is easier to extend and maintain.
+This branch keeps the app logic centralized in Zustand so it is easier to extend, test, and maintain as a production app.
